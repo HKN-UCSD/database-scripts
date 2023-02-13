@@ -1,2 +1,2 @@
 # database-scripts
-These are python scripts which run specific queries that are useful for HKN
+These are python scripts which run specific SQL queries that are useful for HKN portal's database
