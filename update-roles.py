@@ -38,7 +38,7 @@ def main(argv):
         connection = psycopg2.connect(user=DB_USER,
                             password=DB_PASSWORD,
                             host=DB_HOST,
-                            port=5432,
+                            port=DB_PORT,
                             database=DB_DATABASE)
         cursor = connection.cursor()
         print("Database connected!")
