@@ -49,6 +49,8 @@ def main(argv):
         with open(emails_file_path) as f:
             for line in f:
                 line = line.strip()
+                if(line == ""):
+                    continue
                 emails_list.append(line)
         print("Looping through emails\n")
 
@@ -67,6 +69,9 @@ def main(argv):
         for id in records:
             id_list.append(id[0])
         
+        if(len(id_list) != len(emails_list)):
+            print("ERROR: " + str(len(id_list)) + " users pulled, but " + str(len(emails_list)) + " users in emails list.\nThis means that not all emails exist in the database!")
+            
         sql_in_clause = "("
         for id in id_list:
             sql_in_clause = sql_in_clause + "" + str(id) + ", "
@@ -82,11 +87,23 @@ def main(argv):
         else:
             sql_update_user_attendance = "UPDATE attendance SET \"isInductee\"=\'false\' WHERE \"attendeeId\" in " + sql_in_clause
 
+        rowcount_before = cursor.rowcount
+
         cursor.execute(sql_update_user_roles)
+
+        rowcount = cursor.rowcount - rowcount_before
+        
         cursor.execute(sql_update_user_attendance)
+
+        user_input = input("You will be updating " + str(rowcount) + " users. Is this correct? Y/N")
+
+        if(user_input != "Y"):
+            print("Cancelled SQL commit")
+            exit(1)
+
         connection.commit()
 
-        print("Successfully updated users to " + sys.argv[2])
+        print("Successfully updated " + str(rowcount) + " users to " + sys.argv[2])
 
     except psycopg2.Error as e:
         print("Error reading data from SQL table", e)

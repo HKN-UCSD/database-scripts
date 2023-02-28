@@ -52,6 +52,8 @@ def main(argv):
         with open(emails_file_path) as f:
             for line in f:
                 line = line.strip()
+                if(line == ""):
+                    continue
                 emails_list.append(line)
         print("Looping through emails\n")
 
@@ -61,10 +63,37 @@ def main(argv):
         sql_in_clause = sql_in_clause[:len(sql_in_clause) - 2]
         sql_in_clause = sql_in_clause + ")"
 
+        
+        sql_get_user_ids = "SELECT \"id\" FROM app_user WHERE \"email\" IN " + sql_in_clause
+        cursor.execute(sql_get_user_ids)
+
+        records = cursor.fetchall()
+
+        id_list = []
+        for id in records:
+            id_list.append(id[0])
+
+        if(len(id_list) != len(emails_list)):
+            print("ERROR: " + str(len(id_list)) + " users pulled, but " + str(len(emails_list)) + " users in emails list.\nThis means that not all emails exist in the database!")
+
         update_induction_class_emails = "UPDATE app_user SET \"inductionClassQuarter\"=\'"+ sys.argv[2] + "\' WHERE \"email\" IN " + sql_in_clause
+
+        rowcount_before = cursor.rowcount
+
         cursor.execute(update_induction_class_emails)
 
+        rowcount = cursor.rowcount - rowcount_before
+        
+        user_input = input("You will be updating " + str(rowcount) + " users. Is this correct? Y/N")
+
+        if(user_input != "Y"):
+            print("Cancelled SQL commit")
+            exit(1)
+
         connection.commit()
+
+        print("Successfully updated " + str(rowcount) + " users.")
+
 
     except psycopg2.Error as e:
         print("Error reading data from SQL table", e)
