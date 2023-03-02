@@ -87,15 +87,11 @@ def main(argv):
         else:
             sql_update_user_attendance = "UPDATE attendance SET \"isInductee\"=\'false\' WHERE \"attendeeId\" in " + sql_in_clause
 
-        rowcount_before = cursor.rowcount
-
         cursor.execute(sql_update_user_roles)
-
-        rowcount = cursor.rowcount - rowcount_before
         
         cursor.execute(sql_update_user_attendance)
 
-        user_input = input("You will be updating " + str(rowcount) + " users. Is this correct? Y/N")
+        user_input = input("You will be running \n" + sql_update_user_roles + "\n and\n" + sql_update_user_attendance + "\n Is this correct? Y/N")
 
         if(user_input != "Y"):
             print("Cancelled SQL commit")
@@ -103,7 +99,7 @@ def main(argv):
 
         connection.commit()
 
-        print("Successfully updated " + str(rowcount) + " users to " + sys.argv[2])
+        print("Successfully updated users to " + sys.argv[2])
 
     except psycopg2.Error as e:
         print("Error reading data from SQL table", e)
